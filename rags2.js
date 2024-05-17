@@ -21,6 +21,8 @@ async function stringToSplitDocs(string){
     return docs
 }
 
+
+
 const llama = await getLlama({gpu : "cuda", gpuLayers : 40});
 
 const ufcDatas = UFCDatas

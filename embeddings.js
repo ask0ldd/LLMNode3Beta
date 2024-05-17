@@ -1,4 +1,7 @@
 import {Llama3ChatWrapper, LlamaChatSession, getLlama, LlamaModel} from "node-llama-cpp"
+import { RecursiveCharacterTextSplitter } from "langchain/text_splitter"
+import { HNSWLib } from "@langchain/community/vectorstores/hnswlib"
+import { UFCDatas } from "./ufcDatas"
 
 const modelPath = "g:/AI/bge-small-en-v1.5-q8_0.gguf";
 
