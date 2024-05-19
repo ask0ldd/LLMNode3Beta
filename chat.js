@@ -1,11 +1,12 @@
 import { getLlama, LlamaChatSession, ChatMLChatWrapper} from "node-llama-cpp";
 import { UFCDatas } from "./ufcDatas.js";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter"
+import { aiPath } from "./env.js";
 
-const llama3Q5 = "g:/AI/Meta-Llama-3-8B-Instruct.Q5_K_M.gguf"
-const llama3Q4 = "g:/AI/Meta-Llama-3-8B-Instruct.Q4_1.gguf"
-const mistral = "g:/AI/mistral-7b-instruct-v0.2.Q4_K_M.gguf"
-const phi3miniq5KM = "g:/AI/Phi-3-mini-128k-instruct.Q5_K_M.gguf"
+const llama3Q5 = aiPath + "Meta-Llama-3-8B-Instruct.Q5_K_M.gguf"
+const llama3Q4 = aiPath + "Meta-Llama-3-8B-Instruct.Q4_1.gguf"
+const mistral = aiPath + "mistral-7b-instruct-v0.2.Q4_K_M.gguf"
+const phi3miniq5KM = aiPath + "Phi-3-mini-128k-instruct.Q5_K_M.gguf"
 
 async function fileToSplitDocs(filename){
     const text = fs.readFileSync(filename, "utf8")
