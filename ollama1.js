@@ -45,3 +45,4 @@ resp = await model.ask(
 
 console.log("\n\n")
 console.log(resp.response)
+console.log(resp.context)
