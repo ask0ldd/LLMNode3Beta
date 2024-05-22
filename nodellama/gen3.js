@@ -1,5 +1,5 @@
 import {Llama3ChatWrapper, LlamaChatSession, getLlama, LlamaModel} from "node-llama-cpp"
-import { aiPath } from "./env";
+import { aiPath } from "../env";
 
 const contextSize = 2048;
 

@@ -7,8 +7,8 @@ import { StringOutputParser } from "@langchain/core/output_parsers"
 import * as fs from "fs"
 import { PDFLoader } from "langchain/document_loaders/fs/pdf"
 import { ChatPromptTemplate, HumanMessagePromptTemplate, SystemMessagePromptTemplate, } from "@langchain/core/prompts"
-import { UFCDatas } from "./ufcDatas.js";
-import { aiPath } from "./env.js";
+import { UFCDatas } from "../ufcDatas.js";
+import { aiPath } from "../env.js";
 
 const llama3 = aiPath + "Meta-Llama-3-8B-Instruct.Q5_K_M.gguf"
 const mistral = aiPath + "mistral-7b-instruct-v0.2.Q4_K_M.gguf"

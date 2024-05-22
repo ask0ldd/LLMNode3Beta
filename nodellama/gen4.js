@@ -1,8 +1,8 @@
 import {Llama3ChatWrapper, LlamaChatSession, getLlama, LlamaModel} from "node-llama-cpp"
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter"
 import { HNSWLib } from "@langchain/community/vectorstores/hnswlib"
-import { UFCDatas } from "./ufcDatas.js"
-import { aiPath } from "./env";
+import { UFCDatas } from "../ufcDatas.js"
+import { aiPath } from "../env.js";
 
 async function fileToSplitDocs(filename){
     const text = fs.readFileSync(filename, "utf8")

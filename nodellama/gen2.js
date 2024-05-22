@@ -1,7 +1,7 @@
 import { getLlama, LlamaChatSession, ChatMLChatWrapper, LlamaContext} from "node-llama-cpp";
-import { UFCDatas } from "./ufcDatas.js";
+import { UFCDatas } from "../ufcDatas.js";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter"
-import { aiPath } from "./env";
+import { aiPath } from "../env.js";
 
 const llama3Q5 = aiPath + "Meta-Llama-3-8B-Instruct.Q5_K_M.gguf"
 const llama3Q4 = aiPath + "Meta-Llama-3-8B-Instruct.Q4_1.gguf"

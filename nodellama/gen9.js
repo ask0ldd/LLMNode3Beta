@@ -3,8 +3,8 @@
 import {Llama3ChatWrapper, LlamaChatSession, getLlama, LlamaModel, ChatMLChatWrapper} from "node-llama-cpp"
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter"
 import * as fs from "fs"
-import { method, method2 } from "./methods.js";
-import { aiPath } from "./env.js";
+import { method, method2 } from "../methods.js";
+import { aiPath } from "../env.js";
 
 const contextSize = 15500;
 

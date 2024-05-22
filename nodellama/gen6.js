@@ -3,10 +3,10 @@
 import {Llama3ChatWrapper, LlamaChatSession, getLlama, LlamaModel, ChatMLChatWrapper} from "node-llama-cpp"
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter"
 import { HNSWLib } from "@langchain/community/vectorstores/hnswlib"
-import { UFCDatas } from "./ufcDatas.js"
-import { tasksList, tasksList2, textOc } from "./testOC.js"
+import { UFCDatas } from "../ufcDatas.js"
+import { tasksList, tasksList2, textOc } from "../testOC.js"
 import * as fs from "fs"
-import { aiPath } from "./env.js"
+import { aiPath } from "../env.js"
 
 async function fileToSplitDocs(filename){
     const text = fs.readFileSync(filename, "utf8")

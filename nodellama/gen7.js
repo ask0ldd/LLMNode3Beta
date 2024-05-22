@@ -1,9 +1,11 @@
+// testing if i could inject the whole first chapter of montecristo into the sys prompt
+
 import {Llama3ChatWrapper, LlamaChatSession, getLlama, LlamaModel, ChatMLChatWrapper} from "node-llama-cpp"
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter"
 import { HNSWLib } from "@langchain/community/vectorstores/hnswlib"
-import { UFCDatas } from "./ufcDatas.js"
+import { UFCDatas } from "../ufcDatas.js"
 import * as fs from "fs"
-import { aiPath } from "./env";
+import { aiPath } from "../env.js"
 
 async function fileToSplitDocs(filename){
     const text = fs.readFileSync(filename, "utf8")
@@ -34,22 +36,18 @@ const model = await llama.loadModel({
 });
 
 const context = await model.createContext({
-    contextSize
+    contextSize,
+    // threads:3,
 });
-
-/*const chatSession = new LlamaChatSession({
-    contextSequence: context.getSequence(),
-    systemPrompt: "Use the following datas are your primary source of informations : " + UFCDatas +
-        ". Always answer as helpfully as possible and summarize as much as you can your reply. "
-})*/
 
 const chatSession = new LlamaChatSession({
     contextSequence: context.getSequence(),
-    systemPrompt: "Use the following datas as your only source of informations : " + montecristoChapter1.substring(0, 10000) +
-        ". Always answer as helpfully as possible with extensive detail.",
+    systemPrompt: `Use the follow context as your main source of informations : ${montecristoChapter1}. Always answer as helpfully as possible with extensive detail.`,
     chatWrapper: new ChatMLChatWrapper(),
 })
 
-await chatSession.prompt("Summarize all the things you know about Dantes.", 
+const aboutDantes = await chatSession.prompt("Summarize all the things you know about Dantes.", 
     {onToken : (tokens) => process.stdout.write(model.detokenize(tokens)), maxTokens: contextSize}
 )
+
+// chatSession.getChatHistory().forEach(hist => console.log(hist.text))
