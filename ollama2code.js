@@ -1,7 +1,7 @@
 import * as fs from "fs"
 
 const model = {
-    modelName: "llama3",
+    modelName: "dolphin-llama3:8b-256k",
     stream: false,
     systemPrompt: 'You are a helpful assistant.',
     context: [],
@@ -17,14 +17,15 @@ const model = {
         return response.json()
     },
 
-    buildRequest: (prompt) => {
-        return JSON.stringify({
-            "model": model.modelName,
-            "stream": model.stream,
-            "system": model.systemPrompt,
-            "prompt": prompt,
-            "context" : model.context
-        })
+    embeddings : async (sequence) => {
+        const response = await fetch("http://127.0.0.1:11434/api/embeddings", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: model.buildEmbeddingRequest(sequence),
+        });
+        return response.json()
     },
 
     setSystemPrompt: (prompt) => {
@@ -35,12 +36,30 @@ const model = {
         model.modelName = modelName
     },
 
-    setContext : (context ) => {
+    setContext : (context) => {
         model.context = context
-    }
+    },
+   
+    buildRequest: (prompt) => {
+        return JSON.stringify({
+            "model": model.modelName,
+            "stream": model.stream,
+            "system": model.systemPrompt,
+            "prompt": prompt,
+            "context" : model.context
+        })
+    },
+
+    buildEmbeddingRequest : (sequence) => {
+        return JSON.stringify({
+            "model": "nomic-embed-text",
+            "prompt": sequence,
+            "stream": false,
+        })
+    },
 };
 
-model.setModel("llama3")
+model.setModel("dolphin-llama3:8b-256k")
 
 model.setSystemPrompt(`You are a senior developper, top of the line engineer, as proficient as Meta's engineer Dan Abramov when dealing with React and javascript code. 
 Your response should always be a one liner json with two properties, jsx and css. 
