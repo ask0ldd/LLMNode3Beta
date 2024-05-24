@@ -3,5 +3,4 @@ export const modelsChain = {
 
     setContextReuse : (bool) => modelChain.setContextReuse(bool),
 
-    
 }
