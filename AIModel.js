@@ -58,9 +58,9 @@ export const model = {
 
     buildEmbeddingRequest : (sequence) => {
         return JSON.stringify({
-            "model": "nomic-embed-text",
+            "model": /*"mxbai-embed-large"*/ "nomic-embed-text",
             "prompt": sequence,
-            "stream": false,
+            /*"stream": false,*/
         })
     },
 };
