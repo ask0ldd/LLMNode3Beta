@@ -1,105 +1,131 @@
-/*
-* models = dolphin-llama3:8b-256k, llama3
-*/
-export const model = {
-    modelName: "dolphin-llama3:8b-256k",
-    stream: false,
-    systemPrompt: 'You are a helpful assistant.',
-    context: [],
-    contextSize : 0,
-
-    ask: async (prompt) => {
+/**
+ * @class AIModel
+ * @description A class representing an AI model for generating text and embeddings.
+ * @property {string} #modelName - The name of the AI model.
+ * @property {boolean} #stream - Whether to stream the response or not.
+ * @property {string} #systemPrompt - The system prompt for the AI model.
+ * @property {number[]} #context - The context for the AI model.
+ * @property {number} #contextSize - The size of the context for the AI model.
+ */
+export class AIModel {
+    #modelName;
+    #stream;
+    #systemPrompt;
+    #context;
+    #contextSize;
+    /**
+     * @constructor
+     * @param {Object} params - The parameters for the AI model.
+     * @param {string} params.modelName - The name of the AI model.
+     * @param {boolean} [params.stream=false] - Whether to stream the response or not.
+     * @param {string} [params.systemPrompt='You are a helpful assistant.'] - The system prompt for the AI model.
+     * @param {number[]} [params.context=[]] - The context for the AI model.
+     * @param {number} [params.contextSize=0] - The size of the context for the AI model.
+     */
+    constructor({ modelName = "dolphin-llama3:8b-256k", stream = false, systemPrompt = 'You are a helpful assistant.', context = [], contextSize = 0 }) {
+        this.#modelName = modelName;
+        this.#stream = stream;
+        this.#systemPrompt = systemPrompt;
+        this.#context = context;
+        this.#contextSize = contextSize;
+    }
+    /**
+     * @async
+     * @function ask
+     * @param {string} prompt - The prompt for the AI model.
+     * @returns {Promise<ICompletionResponse>} The response from the AI model.
+     * @description Sends a request to the AI model with the given prompt and returns the response.
+     */
+    async ask(prompt) {
         const response = await fetch("http://127.0.0.1:11434/api/generate", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: model.buildRequest(prompt),
+            body: this.#buildRequest(prompt),
         });
-        return response.json()
-    },
-
-    embeddings : async (sequence) => {
+        return response.json();
+    }
+    /**
+     * @async
+     * @function embeddings
+     * @param {string} sequence - The sequence for which to generate embeddings.
+     * @returns {Promise<IEmbeddingResponse>} The embeddings for the given sequence.
+     * @description Sends a request to generate embeddings for the given sequence and returns the embeddings.
+     */
+    async embeddings(sequence) {
         const response = await fetch("http://127.0.0.1:11434/api/embeddings", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: model.buildEmbeddingRequest(sequence),
+            body: this.#buildEmbeddingRequest(sequence),
         });
-        return response.json()
-    },
-
-    setSystemPrompt: (prompt) => {
-        model.systemPrompt = prompt
-    },
-
-    setModel: (modelName) => {
-        model.modelName = modelName
-    },
-
-    setContext : (context) => {
-        model.context = context
-    },
-
-    setContextSize : (value) => {model.contextSize = value},
-   
-    buildRequest: (prompt) => {
+        return response.json();
+    }
+    /**
+     * @function setSystemPrompt
+     * @param {string} prompt - The new system prompt for the AI model.
+     * @description Sets the system prompt for the AI model.
+     */
+    setSystemPrompt(prompt) {
+        this.#systemPrompt = prompt;
+    }
+    /**
+     * @function setModel
+     * @param {string} modelName - The new name of the AI model.
+     * @description Sets the name of the AI model.
+     */
+    setModel(modelName) {
+        this.#modelName = modelName;
+    }
+    /**
+     * @function setContextSize
+     * @param {number} value - The new size of the context for the AI model.
+     * @description Sets the size of the context for the AI model.
+     */
+    setContext(context) {
+        this.#context = context;
+    }
+    /**
+     * @function setContextSize
+     * @param {number} value - The new size of the context for the AI model.
+     * @description Sets the size of the context for the AI model.
+     */
+    setContextSize(value) {
+        this.#contextSize = value;
+    }
+    /**
+     * @private
+     * @function #buildRequest
+     * @param {string} prompt - The prompt for the AI model.
+     * @returns {string} The request body for the AI model.
+     * @description Builds the request body for the AI model with the given prompt and other parameters.
+     */
+    #buildRequest(prompt) {
         let baseRequest = {
-            "model": model.modelName,
-            "stream": model.stream,
-            "system": model.systemPrompt,
+            "model": this.#modelName,
+            "stream": this.#stream,
+            "system": this.#systemPrompt,
             "prompt": prompt,
-            "context" : model.context
-        }
-        if(model.contextSize != 0) baseRequest = {...baseRequest, "options": { "num_ctx": model.contextSize }}
-        return JSON.stringify(baseRequest)
-    },
-
-    buildEmbeddingRequest : (sequence) => {
+            "context": this.#context
+        };
+        if (this.#contextSize != 0)
+            baseRequest = { ...baseRequest, "options": { "num_ctx": this.#contextSize } };
+        return JSON.stringify(baseRequest);
+    }
+    /**
+     * @private
+     * @function #buildEmbeddingRequest
+     * @param {any} sequence - The sequence for which to generate embeddings.
+     * @returns {string} The request body for generating embeddings.
+     * @description Builds the request body for generating embeddings for the given sequence.
+     */
+    #buildEmbeddingRequest(sequence) {
         return JSON.stringify({
             "model": /*"mxbai-embed-large"*/ "nomic-embed-text",
             "prompt": sequence,
             /*"stream": false,*/
-        })
-    },
-};
-
-/*
-curl http://localhost:11434/api/generate -d '{
-  "model": "llama3",
-  "prompt": "Why is the sky blue?",
-  "stream": false,
-  "options": {
-    "num_keep": 5,
-    "seed": 42,
-    "num_predict": 100,
-    "top_k": 20,
-    "top_p": 0.9,
-    "tfs_z": 0.5,
-    "typical_p": 0.7,
-    "repeat_last_n": 33,
-    "temperature": 0.8,
-    "repeat_penalty": 1.2,
-    "presence_penalty": 1.5,
-    "frequency_penalty": 1.0,
-    "mirostat": 1,
-    "mirostat_tau": 0.8,
-    "mirostat_eta": 0.6,
-    "penalize_newline": true,
-    "stop": ["\n", "user:"],
-    "numa": false,
-    "num_ctx": 1024,
-    "num_batch": 2,
-    "num_gpu": 1,
-    "main_gpu": 0,
-    "low_vram": false,
-    "f16_kv": true,
-    "vocab_only": false,
-    "use_mmap": true,
-    "use_mlock": false,
-    "num_thread": 8
-  }
-}'
-
-*/
+        });
+    }
+}

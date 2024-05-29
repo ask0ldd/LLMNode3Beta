@@ -4,15 +4,15 @@
  * @property {string} #modelName - The name of the AI model.
  * @property {boolean} #stream - Whether to stream the response or not.
  * @property {string} #systemPrompt - The system prompt for the AI model.
- * @property {Array<number>} #context - The context for the AI model.
+ * @property {number[]} #context - The context for the AI model.
  * @property {number} #contextSize - The size of the context for the AI model.
  */
-class AIModel{
+export class AIModel{
 
     #modelName : string
     #stream : boolean
     #systemPrompt : string
-    #context : Array<number>
+    #context : number[]
     #contextSize : number
 
     /**
@@ -21,10 +21,10 @@ class AIModel{
      * @param {string} params.modelName - The name of the AI model.
      * @param {boolean} [params.stream=false] - Whether to stream the response or not.
      * @param {string} [params.systemPrompt='You are a helpful assistant.'] - The system prompt for the AI model.
-     * @param {Array<number>} [params.context=[]] - The context for the AI model.
+     * @param {number[]} [params.context=[]] - The context for the AI model.
      * @param {number} [params.contextSize=0] - The size of the context for the AI model.
      */
-    constructor({ modelName, stream = false, systemPrompt =  'You are a helpful assistant.', context = [], contextSize = 0 } : IAIModelParams){
+    constructor({ modelName = "dolphin-llama3:8b-256k", stream = false, systemPrompt =  'You are a helpful assistant.', context = [], contextSize = 0 } : IAIModelParams){
         this.#modelName = modelName
         this.#stream = stream
         this.#systemPrompt = systemPrompt
@@ -36,10 +36,10 @@ class AIModel{
      * @async
      * @function ask
      * @param {string} prompt - The prompt for the AI model.
-     * @returns {Promise<string>} The response from the AI model.
+     * @returns {Promise<ICompletionResponse>} The response from the AI model.
      * @description Sends a request to the AI model with the given prompt and returns the response.
      */
-    async ask(prompt : string) : Promise<string> {
+    async ask(prompt : string) : Promise<ICompletionResponse> {
         const response = await fetch("http://127.0.0.1:11434/api/generate", {
             method: "POST",
             headers: {
@@ -54,10 +54,10 @@ class AIModel{
      * @async
      * @function embeddings
      * @param {string} sequence - The sequence for which to generate embeddings.
-     * @returns {Promise<string>} The embeddings for the given sequence.
+     * @returns {Promise<IEmbeddingResponse>} The embeddings for the given sequence.
      * @description Sends a request to generate embeddings for the given sequence and returns the embeddings.
      */
-    async embeddings(sequence : string) : Promise<string> {
+    async embeddings(sequence : string) : Promise<IEmbeddingResponse> {
         const response = await fetch("http://127.0.0.1:11434/api/embeddings", {
             method: "POST",
             headers: {
@@ -91,7 +91,7 @@ class AIModel{
      * @param {number} value - The new size of the context for the AI model.
      * @description Sets the size of the context for the AI model.
      */
-    setContext(context : Array<number>) : void {
+    setContext(context : number[]) : void {
         this.#context = context
     }
 
@@ -139,19 +139,39 @@ class AIModel{
     }
 }
 
-interface IAIModelParams{
-    modelName : string
-    stream : boolean
-    systemPrompt : string
-    context : Array<number>
-    contextSize : number
+export interface IAIModelParams{
+    modelName? : string
+    stream? : boolean
+    systemPrompt? : string
+    context? : number[]
+    contextSize? : number
 }
 
-interface IBaseOllamaRequest{
+export interface IBaseOllamaRequest{
     model: string
     stream: boolean
     system: string
     prompt: string
-    context : Array<number>
+    context : number[]
     options? : any
+}
+
+export type Embedding = number[]
+
+export interface IEmbeddingResponse {
+    embedding : Embedding
+}
+
+export interface ICompletionResponse{
+    model: string
+    created_at: string
+    response: string
+    done: boolean
+    context?: number[]
+    total_duration?: number
+    load_duration?: number
+    prompt_eval_count?: number
+    prompt_eval_duration?: number
+    eval_count?: number
+    eval_duration?: number
 }
