@@ -1,4 +1,4 @@
-import { model } from "./AIModel.js";
+import { model } from "../AIModel.js";
 import * as fs from "fs"
 import { ChromaClient } from "chromadb"
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter"

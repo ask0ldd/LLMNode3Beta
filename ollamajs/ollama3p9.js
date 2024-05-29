@@ -1,4 +1,4 @@
-import { model } from "./AIModel.js";
+import { model } from "../AIModel.js";
 import * as fs from "fs"
 
 model.setModel("dolphin-llama3:8b-256k")
