@@ -7,3 +7,4 @@ chroma.log
 chroma.bat
 ressources.txt
 dist
+*.js

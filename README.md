@@ -1,1 +1,1 @@
-Testing node llama + llama3
+Testing ollama + llama3
