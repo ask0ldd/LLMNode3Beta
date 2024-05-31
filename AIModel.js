@@ -13,6 +13,7 @@ export class AIModel {
     #systemPrompt;
     #context;
     #contextSize;
+    #temperature;
     /**
      * @constructor
      * @param {Object} params - The parameters for the AI model.
@@ -20,14 +21,16 @@ export class AIModel {
      * @param {boolean} [params.stream=false] - Whether to stream the response or not.
      * @param {string} [params.systemPrompt='You are a helpful assistant.'] - The system prompt for the AI model.
      * @param {number[]} [params.context=[]] - The context for the AI model.
-     * @param {number} [params.contextSize=0] - The size of the context for the AI model.
+     * @param {number} [params.contextSize=2048] - The size of the context for the AI model.
+     * @param {number} [params.temperature=0.8] - The temperature for the AI model.
      */
-    constructor({ modelName = "dolphin-llama3:8b-256k", stream = false, systemPrompt = 'You are a helpful assistant.', context = [], contextSize = 0 }) {
+    constructor({ modelName = "dolphin-llama3:8b-256k", stream = false, systemPrompt = 'You are a helpful assistant.', context = [], contextSize = 2048, temperature = 0.8 }) {
         this.#modelName = modelName;
         this.#stream = stream;
         this.#systemPrompt = systemPrompt;
         this.#context = context;
         this.#contextSize = contextSize;
+        this.#temperature = temperature;
     }
     /**
      * @async
@@ -93,7 +96,21 @@ export class AIModel {
      * @description Sets the size of the context for the AI model.
      */
     setContextSize(value) {
+        if (value < 0)
+            value = 0;
         this.#contextSize = value;
+    }
+    /**
+     * @function setTemperature
+     * @param {number} value - The new temperature for the AI model.
+     * @description Sets the temperature for the AI model.
+     */
+    setTemperature(value) {
+        if (value > 1)
+            value = 1;
+        if (value < 0)
+            value = 0;
+        this.#temperature = value;
     }
     /**
      * @private
@@ -110,8 +127,8 @@ export class AIModel {
             "prompt": prompt,
             "context": this.#context
         };
-        if (this.#contextSize != 0)
-            baseRequest = { ...baseRequest, "options": { "num_ctx": this.#contextSize } };
+        // if(this.#contextSize != 0) baseRequest = {...baseRequest, "options": { "num_ctx": this.#contextSize }}
+        baseRequest = { ...baseRequest, "options": { "num_ctx": this.#contextSize, "temperature": this.#temperature } };
         return JSON.stringify(baseRequest);
     }
     /**
