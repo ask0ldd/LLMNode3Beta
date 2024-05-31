@@ -14,6 +14,7 @@ export class AIModel{
     #systemPrompt : string
     #context : number[]
     #contextSize : number
+    #temperature : number
 
     /**
      * @constructor
@@ -22,14 +23,16 @@ export class AIModel{
      * @param {boolean} [params.stream=false] - Whether to stream the response or not.
      * @param {string} [params.systemPrompt='You are a helpful assistant.'] - The system prompt for the AI model.
      * @param {number[]} [params.context=[]] - The context for the AI model.
-     * @param {number} [params.contextSize=0] - The size of the context for the AI model.
+     * @param {number} [params.contextSize=2048] - The size of the context for the AI model.
+     * @param {number} [params.temperature=0.8] - The temperature for the AI model.
      */
-    constructor({ modelName = "dolphin-llama3:8b-256k", stream = false, systemPrompt =  'You are a helpful assistant.', context = [], contextSize = 0 } : IAIModelParams){
+    constructor({ modelName = "dolphin-llama3:8b-256k", stream = false, systemPrompt =  'You are a helpful assistant.', context = [], contextSize = 2048, temperature = 0.8 } : IAIModelParams){
         this.#modelName = modelName
         this.#stream = stream
         this.#systemPrompt = systemPrompt
         this.#context = context
         this.#contextSize = contextSize
+        this.#temperature = temperature
     }
 
     /**
@@ -101,7 +104,19 @@ export class AIModel{
      * @description Sets the size of the context for the AI model.
      */
     setContextSize(value : number) : void {
+        if(value < 0) value = 0
         this.#contextSize = value
+    }
+
+    /**
+     * @function setTemperature
+     * @param {number} value - The new temperature for the AI model.
+     * @description Sets the temperature for the AI model.
+     */
+        setTemperature(value : number) : void {
+            if(value > 1) value = 1
+            if(value < 0) value = 0
+            this.#temperature = value
     }
 
     /**
@@ -119,7 +134,8 @@ export class AIModel{
             "prompt": prompt,
             "context" : this.#context
         }
-        if(this.#contextSize != 0) baseRequest = {...baseRequest, "options": { "num_ctx": this.#contextSize }}
+        // if(this.#contextSize != 0) baseRequest = {...baseRequest, "options": { "num_ctx": this.#contextSize }}
+        baseRequest = {...baseRequest, "options": { "num_ctx": this.#contextSize, "temperature" : this.#temperature }}
         return JSON.stringify(baseRequest)
     }
 
@@ -145,6 +161,7 @@ export interface IAIModelParams{
     systemPrompt? : string
     context? : number[]
     contextSize? : number
+    temperature? : number
 }
 
 export interface IBaseOllamaRequest{
