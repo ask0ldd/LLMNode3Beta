@@ -30,12 +30,18 @@ model.setTemperature(0)
 
 await model.setContextSize(8000)
 
-const resp = await model.ask('Your total happiness should start at twenty\n\n schema : {"total_happiness" : 20}')
+const resp = await model.ask('Your total happiness should start at twenty\n\n schema : {"total_happiness": value}')
 
 console.log("\u001b[1;34m " + resp.response)
 
 model.setContext(resp.context as number[])
 
-const resp2 = await model.ask('You lose 2 points of happiness, what is your total happiness right now?\n\n schema : {"total_happiness" : 20}')
+const resp2 = await model.ask('You lose 2 points of happiness, what is your total happiness right now?\n\n schema : {"total_happiness": value}')
 
 console.log("\u001b[1;35m " + resp2.response)
+
+model.setContext(resp2.context as number[])
+
+const resp3 = await model.ask('You lose 2 points of happiness, what is your total happiness right now?\n\n schema : {"total_happiness": value}')
+
+console.log("\u001b[1;31m " + resp3.response)
