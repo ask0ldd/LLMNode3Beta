@@ -5,7 +5,7 @@ import { Document, BaseDocumentTransformer } from "@langchain/core/documents";
 import { AIModel, Embedding } from "./AIModel.js";
 
 
-const models = ["llama3", "dolphin-llama3:8b-256k", "phi3:3.8-mini-128k-instruct-q4_K_M"]
+const models = ["llama3", "dolphin-llama3:8b-256k", "phi3:3.8-mini-128k-instruct-q4_K_M", "qwen2", "qwen2:1.5b", "qwen2:0.5b",]
 
 function splitTextToSequences(text : string, seqLength : number = 200) : Array<string>{
     const words : string[] = text.split(/\s+/)
@@ -26,7 +26,7 @@ const model = new AIModel({})
 
 // You are an helpful assistant. Your reply should always follow the json schema given by the user. No need for any commentary or explaination. Calculate the result value of all formulas.
 
-model.setModel("dolphin-llama3:8b-256k")
+model.setModel("qwen2")
 model.setSystemPrompt(`You are an helpful assistant. Your reply should always follow the last given schema. No need for any commentary or explaination. All values in a json object should be a mathematical value, no operation.`)
 model.setTemperature(0)
 
@@ -51,7 +51,7 @@ update this schema :\n\n
 console.log("\u001b[1;35m " + resp2.response)
 
 model.setContext(resp2.context as number[])
-const resp3 = await model.ask(`You lose 2 points of happiness, what is your new total happiness?\n\n
+const resp3 = await model.ask(`Once again, you lose 2 points of happiness, what is your new total happiness?\n\n
 update this schema :\n\n
 {
     "total_happiness": value, 

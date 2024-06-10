@@ -24,6 +24,8 @@
     "typescript": "^5.4.5"
   },
   "scripts": {
-    "compile": "npx tsc --project tsconfig.json"
+    "compile": "npx tsc --project tsconfig.json",
+    "chroma": "chroma run --path /getting-started",
+    "ollama": "ollama serve"
   }
 }
