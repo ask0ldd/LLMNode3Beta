@@ -13,7 +13,7 @@ function cosineSimilarity(a : number[], b : number[]) {
 }
 
 
-const models = ["llama3", "dolphin-llama3:8b-256k", "phi3:3.8-mini-128k-instruct-q4_K_M"]
+const models = ["llama3", "dolphin-llama3:8b-256k", "phi3:3.8-mini-128k-instruct-q4_K_M", "gemma2:9b"]
 
 function splitTextToSequences(text : string, seqLength : number = 200) : Array<string>{
     const words : string[] = text.split(/\s+/)

@@ -5,7 +5,7 @@ import { Document, BaseDocumentTransformer } from "@langchain/core/documents";
 import { AIModel, Embedding } from "./AIModel.js";
 
 
-const models = ["llama3", "dolphin-llama3:8b-256k", "phi3:3.8-mini-128k-instruct-q4_K_M", "qwen2", "qwen2:1.5b", "qwen2:0.5b",]
+const models = ["llama3", "llama3.1:8b", "dolphin-llama3:8b-256k", "phi3:3.8-mini-128k-instruct-q4_K_M", "qwen2", "qwen2:1.5b", "qwen2:0.5b", "gemma2:9b"]
 
 function splitTextToSequences(text : string, seqLength : number = 200) : Array<string>{
     const words : string[] = text.split(/\s+/)
