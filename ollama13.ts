@@ -1,10 +1,10 @@
 import * as fs from "fs"
 import { ChromaClient } from "chromadb"
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter"
-import { Document, BaseDocumentTransformer } from "@langchain/core/documents";
-import { AIModel, Embedding } from "./AIModel.js";
-import { search, SafeSearchType } from 'duck-duck-scrape';
-
+import { Document, BaseDocumentTransformer } from "@langchain/core/documents"
+import { AIModel, Embedding } from "./AIModel.js"
+import { search, SafeSearchType } from 'duck-duck-scrape'
+import * as cheerio from 'cheerio'
 
 const models = ["llama3", "llama3.1:8b", "dolphin-llama3:8b-256k", "phi3:3.8-mini-128k-instruct-q4_K_M", "qwen2", "qwen2:1.5b", "qwen2:0.5b", "gemma2:9b"]
 
@@ -42,3 +42,23 @@ const searchResults = await search('node.js', {
 })
 
 console.log(searchResults)
+
+let url = searchResults.results[0].url
+console.log('url : ', url)
+let html = ""
+
+try {
+    const response = await fetch(url);
+    if (!response.ok) {
+    throw new Error(`Response status: ${response.status}`);
+    }
+    html = await response.text()
+}catch(error){
+    console.log(error)
+}
+
+// console.log('html : ', html)
+
+const webpage = cheerio.load(html)
+
+console.log('main : ', webpage('main').text())
