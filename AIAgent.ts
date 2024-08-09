@@ -6,19 +6,41 @@ export class AIAgent {
     #maxIter = 25
     #model! : AIModel
     #fnCallingModel : AIModel | null = null
+    #request = ""
+
+    models = ["llama3", "llama3.1:8b", "dolphin-llama3:8b-256k", "phi3:3.8-mini-128k-instruct-q4_K_M", "qwen2", "qwen2:1.5b", "qwen2:0.5b", "gemma2:9b"]
+
+    defaultModel = "llama3.1:8b"
 
 
-    constructor({name, model} : IAIAgentParams){
+    constructor(name : string, model : string = this.defaultModel){
         this.#name = name
-        this.#model = model
+        this.#model = new AIModel({modelName : model}).setTemperature(0.1).setContextSize(8000).setContext([]).setSystemPrompt("You are an helpful assistant.")
     }
 
-    setModel(model : AIModel){
+    setModel(model : AIModel) : AIAgent{
         this.#model = model
+        return this
     }
 
-    setMaxIter(iter : number){
+    get model() : AIModel{
+        return this.#model
+    }
+
+    async call(){
+        if(this.#request == "") return
+        const response = await this.#model.ask(this.#request)
+        console.log(response.response)
+    }
+
+    setRequest(request : string) : AIAgent{
+        this.#request = request
+        return this
+    }
+
+    setMaxIter(iter : number) : AIAgent{
         this.#maxIter = iter
+        return this
     }
 
     setFunctionCallingModel(model : AIModel){
@@ -28,6 +50,8 @@ export class AIAgent {
     //setAction
     //setOutputSchema
 }
+
+// should be able to link a control agent
 
 export interface IAIAgentParams{
     name : string
