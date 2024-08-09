@@ -61,12 +61,15 @@ const webpage = cheerio.load(html)
 
 console.log('main : ', webpage('main').text())
 
-model.setModel("llama3.1:8b")
-model.setSystemPrompt(`You are a expert linguist.`)
-model.setTemperature(0.1)
+model.setModel("llama3.1:8b").setSystemPrompt(`You are a expert linguist.`).setTemperature(0.1)
 
 await model.setContextSize(8000)
 
 model.setContext([])
 const resp = await model.ask(`Take the following text, and for each capital caracter, ask yourself if it should lead to a new line. If it does, then add a new line to the text. In the end, output the modified text. Nothing more.\n\n${webpage('main').text().trim()}`) 
 console.log("\u001b[1;33m " + resp.response)
+
+model.setSystemPrompt(`You are a chief editor for a scientific paper and developper.`).setTemperature(0.3).setContext([])
+
+const resp2 = await model.ask(`Extract only the code from the following text with no added annotations :\n\n${resp.response}`)
+console.log("\u001b[1;34m " + resp2.response)
