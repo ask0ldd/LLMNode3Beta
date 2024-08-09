@@ -63,8 +63,12 @@ console.log("\u001b[1;34m " + resp2.response)
 const resp3 = await model.ask("what are you?")
 console.log("\u001b[1;35m " + resp3.response)*/
 
-const agent = new AIAgent("base agent")
+const agent = new AIAgent("line formater agent").setSystemPrompt("You are a expert linguist.")
 
-agent.setSystemPrompt("You are a expert linguist.")
-        .setRequest(`Take the following text, and for each capital caracter, ask yourself if it should lead to a new line. If it does, then add a new line to the text. In the end, output the modified text. Nothing more.\n\n${webpage('main').text().trim()}`)
-agent.call()
+agent.setRequest(`Take the following text, and for each capital caracter, ask yourself if it should lead to a new line. If it does, then add a new line to the text. In the end, output the modified text. Nothing more.\n\n${webpage('main').text().trim()}`)
+let result = await agent.call()
+
+const agent2 = new AIAgent("code extracter agent").setSystemPrompt("You are a chief editor for a scientific paper and developper.")
+
+agent2.setRequest(`Extract only the code from the following text with no added annotations or delimiters :\n\n${result}`)
+result = await agent2.call()
