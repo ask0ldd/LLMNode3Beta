@@ -73,6 +73,7 @@ export class AIModel {
      */
     setSystemPrompt(prompt) {
         this.#systemPrompt = prompt;
+        return this;
     }
     /**
      * @function setModel
@@ -81,6 +82,7 @@ export class AIModel {
      */
     setModel(modelName) {
         this.#modelName = modelName;
+        return this;
     }
     /**
      * @function setContextSize
@@ -89,6 +91,7 @@ export class AIModel {
      */
     setContext(context) {
         this.#context = context;
+        return this;
     }
     /**
      * @function setContextSize
@@ -99,6 +102,7 @@ export class AIModel {
         if (value < 0)
             value = 0;
         this.#contextSize = value;
+        return this;
     }
     /**
      * @function setTemperature
@@ -111,6 +115,7 @@ export class AIModel {
         if (value < 0)
             value = 0;
         this.#temperature = value;
+        return this;
     }
     /**
      * @private

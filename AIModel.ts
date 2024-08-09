@@ -76,8 +76,9 @@ export class AIModel{
      * @param {string} prompt - The new system prompt for the AI model.
      * @description Sets the system prompt for the AI model.
      */
-    setSystemPrompt(prompt : string) : void {
+    setSystemPrompt(prompt : string) : AIModel {
         this.#systemPrompt = prompt
+        return this
     }
 
     /**
@@ -85,8 +86,9 @@ export class AIModel{
      * @param {string} modelName - The new name of the AI model.
      * @description Sets the name of the AI model.
      */
-    setModel(modelName : string) : void {
+    setModel(modelName : string) : AIModel {
         this.#modelName = modelName
+        return this
     }
 
     /**
@@ -94,8 +96,9 @@ export class AIModel{
      * @param {number} value - The new size of the context for the AI model.
      * @description Sets the size of the context for the AI model.
      */
-    setContext(context : number[]) : void {
+    setContext(context : number[]) : AIModel {
         this.#context = context
+        return this
     }
 
     /**
@@ -103,9 +106,10 @@ export class AIModel{
      * @param {number} value - The new size of the context for the AI model.
      * @description Sets the size of the context for the AI model.
      */
-    setContextSize(value : number) : void {
+    setContextSize(value : number) : AIModel {
         if(value < 0) value = 0
         this.#contextSize = value
+        return this
     }
 
     /**
@@ -113,10 +117,11 @@ export class AIModel{
      * @param {number} value - The new temperature for the AI model.
      * @description Sets the temperature for the AI model.
      */
-        setTemperature(value : number) : void {
+        setTemperature(value : number) : AIModel {
             if(value > 1) value = 1
             if(value < 0) value = 0
             this.#temperature = value
+            return this
     }
 
     /**
