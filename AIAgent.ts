@@ -1,4 +1,4 @@
-import { AIModel } from "./AIModel"
+import { AIModel } from "./AIModel.js"
 
 export class AIAgent {
 
@@ -7,13 +7,15 @@ export class AIAgent {
     #model! : AIModel
     #fnCallingModel : AIModel | null = null
     #request = ""
+    #processingRequest = false
+    #lastOutput = ""
 
     models = ["llama3", "llama3.1:8b", "dolphin-llama3:8b-256k", "phi3:3.8-mini-128k-instruct-q4_K_M", "qwen2", "qwen2:1.5b", "qwen2:0.5b", "gemma2:9b"]
 
     defaultModel = "llama3.1:8b"
 
 
-    constructor(name : string, model : string = this.defaultModel){
+    constructor(name : string, model : string = "llama3.1:8b"){
         this.#name = name
         this.#model = new AIModel({modelName : model}).setTemperature(0.1).setContextSize(8000).setContext([]).setSystemPrompt("You are an helpful assistant.")
     }
@@ -30,11 +32,18 @@ export class AIAgent {
     async call(){
         if(this.#request == "") return
         const response = await this.#model.ask(this.#request)
-        console.log(response.response)
+        console.log("\u001b[1;35m " + this.#name + ' :\n\n' + response.response)
+        this.#lastOutput = response.response
+        return response.response
     }
 
     setRequest(request : string) : AIAgent{
         this.#request = request
+        return this
+    }
+
+    setSystemPrompt(prompt : string) : AIAgent{
+        this.#model.setSystemPrompt(prompt)
         return this
     }
 
@@ -46,6 +55,11 @@ export class AIAgent {
     setFunctionCallingModel(model : AIModel){
         this.#fnCallingModel = model
     }
+
+    /*getLastOutput() : string{
+        while(this.#processingRequest){}
+        return this.#lastOutput
+    }*/
 
     //setAction
     //setOutputSchema
