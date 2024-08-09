@@ -1,23 +1,9 @@
 import { AIModel } from "./AIModel.js"
 import { search, SafeSearchType } from 'duck-duck-scrape'
 import * as cheerio from 'cheerio'
+import { AIAgent } from "./AIAgent.js"
 
 const models = ["llama3", "llama3.1:8b", "dolphin-llama3:8b-256k", "phi3:3.8-mini-128k-instruct-q4_K_M", "qwen2", "qwen2:1.5b", "qwen2:0.5b", "gemma2:9b"]
-
-function splitTextToSequences(text : string, seqLength : number = 200) : Array<string>{
-    const words : string[] = text.split(/\s+/)
-    let sequences : string[] = []
-    let sequence : string[] = []
-    for(let i = 0; i < words.length; i++){
-        sequence.push(words[i])
-        if(i == 0) continue
-        if(i % seqLength == 0 || i === words.length - 1){
-            sequences.push(sequence.join(" "))
-            sequence = []
-        }
-    }
-    return sequences
-}
 
 const model = new AIModel({})
 
@@ -61,7 +47,7 @@ const webpage = cheerio.load(html)
 
 console.log('main : ', webpage('main').text())
 
-model.setModel("llama3.1:8b").setSystemPrompt(`You are a expert linguist.`).setTemperature(0.1)
+/*model.setModel("llama3.1:8b").setSystemPrompt(`You are a expert linguist.`).setTemperature(0.1)
 
 await model.setContextSize(8000)
 
@@ -75,4 +61,10 @@ const resp2 = await model.ask(`Extract only the code from the following text wit
 console.log("\u001b[1;34m " + resp2.response)
 
 const resp3 = await model.ask("what are you?")
-console.log("\u001b[1;35m " + resp3.response)
+console.log("\u001b[1;35m " + resp3.response)*/
+
+const agent = new AIAgent("base agent")
+
+agent.setSystemPrompt("You are a expert linguist.")
+        .setRequest(`Take the following text, and for each capital caracter, ask yourself if it should lead to a new line. If it does, then add a new line to the text. In the end, output the modified text. Nothing more.\n\n${webpage('main').text().trim()}`)
+agent.call()
