@@ -9,6 +9,7 @@ export class AIAgent {
     #request = ""
     #processingRequest = false
     #lastOutput = ""
+    #expectInputFormat = ""
 
     models = ["llama3", "llama3.1:8b", "dolphin-llama3:8b-256k", "phi3:3.8-mini-128k-instruct-q4_K_M", "qwen2", "qwen2:1.5b", "qwen2:0.5b", "gemma2:9b"]
 
@@ -47,6 +48,10 @@ export class AIAgent {
         return this
     }
 
+    resetContext(){
+        this.#model.setContext([])
+    }
+
     setMaxIter(iter : number) : AIAgent{
         this.#maxIter = iter
         return this
@@ -54,6 +59,15 @@ export class AIAgent {
 
     setFunctionCallingModel(model : AIModel){
         this.#fnCallingModel = model
+    }
+
+    setExpectedInputFormat(fewShots : string){
+        this.#expectInputFormat = fewShots
+        return this
+    }
+
+    getExpectedInputFormat(){
+        return this.#expectInputFormat
     }
 
     /*getLastOutput() : string{
