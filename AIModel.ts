@@ -15,6 +15,7 @@ export class AIModel{
     #context : number[]
     #contextSize : number
     #temperature : number
+    // #knowledgeSource = ""
 
     /**
      * @constructor
@@ -158,6 +159,15 @@ export class AIModel{
             /*"stream": false,*/
         })
     }
+
+    /*use(knowledgeSource : string){
+        this.#knowledgeSource = knowledgeSource
+    }
+
+    toAnswer(question : string){
+        if(this.#knowledgeSource == "") return this.ask(question)
+        
+    }*/
 }
 
 export interface IAIModelParams{

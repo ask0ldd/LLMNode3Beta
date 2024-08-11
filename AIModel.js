@@ -14,6 +14,7 @@ export class AIModel {
     #context;
     #contextSize;
     #temperature;
+    // #knowledgeSource = ""
     /**
      * @constructor
      * @param {Object} params - The parameters for the AI model.
