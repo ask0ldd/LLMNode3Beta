@@ -14,6 +14,15 @@ export class AIAgenticLibrary{
             Here follows the text to format : \n\n`
     )
 
+    static textExtractorAgent = new AIAgent("Text Extractor Agent")
+    .setSystemPrompt(
+        `You are a expert linguist and you should process any chunk of text that way :\n
+        - Extract all the prose out of it.\n
+        - Output it with as little modifications as possible.\n
+        - Add no annotations or delimiters to your output.\n\n
+        Here follows the text to format : \n\n`
+    )
+
     static codeExtracterAgent = new AIAgent("Code Extracter Agent")
         .setSystemPrompt(
             `You are an expert developper and as such :\n
