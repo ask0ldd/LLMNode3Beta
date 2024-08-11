@@ -15,21 +15,38 @@ export class AIAgent {
 
     defaultModel = "llama3.1:8b"
 
-
+    /**
+     * Constructs a new AIAgent.
+     * @param {string} name - The name of the agent.
+     * @param {string} [model="llama3.1:8b"] - The model to be used by the agent.
+     */
     constructor(name : string, model : string = "llama3.1:8b"){
         this.#name = name
         this.#model = new AIModel({modelName : model}).setTemperature(0.1).setContextSize(8000).setContext([]).setSystemPrompt("You are an helpful assistant.")
     }
 
+    /**
+     * Sets the AI model for the agent.
+     * @param {AIModel} model - The AI model to set.
+     * @returns {AIAgent} The current instance for chaining.
+     */
     setModel(model : AIModel) : AIAgent{
         this.#model = model
         return this
     }
 
+    /**
+     * Gets the current AI model.
+     * @returns {AIModel} The current AI model.
+     */
     get model() : AIModel{
         return this.#model
     }
 
+    /**
+     * Calls the AI model with the current request.
+     * @returns {Promise<string>} The response from the AI model.
+     */
     async call(){
         if(this.#request == "") return
         const response = await this.#model.ask(this.#request)
@@ -38,34 +55,67 @@ export class AIAgent {
         return response.response
     }
 
+    /**
+     * Sets the request for the AI model.
+     * @param {string} request - The request to be set.
+     * @returns {AIAgent} The current instance for chaining.
+     */
     setRequest(request : string) : AIAgent{
         this.#request = request
         return this
     }
 
+    /**
+     * Sets the system prompt for the AI model.
+     * @param {string} prompt - The system prompt to be set.
+     * @returns {AIAgent} The current instance for chaining.
+     */
     setSystemPrompt(prompt : string) : AIAgent{
         this.#model.setSystemPrompt(prompt)
         return this
     }
 
-    resetContext(){
+    /**
+     * Resets the context of the AI model.
+     * @returns {AIAgent} The current instance for chaining.
+     */
+    resetContext(): AIAgent{
         this.#model.setContext([])
+        return this
     }
 
+    /**
+     * Sets the maximum number of iterations.
+     * @param {number} iter - The maximum number of iterations.
+     * @returns {AIAgent} The current instance for chaining.
+     */
     setMaxIter(iter : number) : AIAgent{
         this.#maxIter = iter
         return this
     }
 
+    /**
+     * Sets the function calling model.
+     * @param {AIModel} model - The function calling model to set.
+     */
     setFunctionCallingModel(model : AIModel){
         this.#fnCallingModel = model
     }
 
+    /**
+     * Sets the expected input format.
+     * @param {string} fewShots - The expected input format.
+     * @returns {AIAgent} The current instance for chaining.
+     */
     setExpectedInputFormat(fewShots : string){
         this.#expectInputFormat = fewShots
         return this
     }
 
+    /**
+     * Gets the expected input format.
+     * @returns {string} The expected input format.
+     */
     getExpectedInputFormat(){
         return this.#expectInputFormat
     }
