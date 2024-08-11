@@ -16,7 +16,15 @@ export class Browser {
             const response = await fetch(url)
             if (!response.ok) throw new Error(`Response status: ${response.status}`)
             const webpage = cheerio.load(await response.text())
-            return webpage("main").text()
+            webpage('script').remove()
+            webpage('style').remove()
+            webpage('nav').remove()
+            webpage('header').remove()
+            webpage('footer').remove()
+            webpage('a').remove()
+            webpage('img').remove()
+            const cleanText = (webpage("body").text()).replace("\n", "")
+            return cleanText
         }catch(error){
             console.log(error)
         }
