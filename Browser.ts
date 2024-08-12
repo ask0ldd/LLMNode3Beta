@@ -12,7 +12,11 @@ export class Browser {
     }
 
     static async fetchPage(url : string) : Promise<string| undefined>{
+        const imgTagRegex = /<img[^>]*\/>/gi;
+        const imgTagRegex2 = /<img[^>]*\/><\/img>/gi;
+        const imgTagRegex3 = /<img[^>]*>/gi;
         try {
+            
             const response = await fetch(url)
             if (!response.ok) throw new Error(`Response status: ${response.status}`)
             const webpage = cheerio.load(await response.text())
@@ -23,7 +27,13 @@ export class Browser {
             webpage('footer').remove()
             webpage('a').remove()
             webpage('img').remove()
-            const cleanText = (webpage("body").text()).replace("\n", "")
+            const cleanText = (webpage("body").text())
+                .replace(/[\n\t]+/g, '\n')
+                .replace(imgTagRegex, '')
+                .replace(imgTagRegex2, '')
+                .replace(imgTagRegex3, '')
+                .replace("\'", "'")
+                .replace('\"', '"');
             return cleanText
         }catch(error){
             console.log(error)
