@@ -3,13 +3,15 @@ import { AIModel } from "./AIModel.js"
 export class AIAgent {
 
     #name! : string
-    #maxIter = 25
+    // #currentIter = 0
+    #maxIter = 5
     #model! : AIModel
     #fnCallingModel : AIModel | null = null
     #request = ""
     #processingRequest = false
     #lastOutput = ""
     #expectInputFormat = ""
+    #regexValidator : RegExp | undefined
 
     models = ["llama3", "llama3.1:8b", "dolphin-llama3:8b-256k", "phi3:3.8-mini-128k-instruct-q4_K_M", "qwen2", "qwen2:1.5b", "qwen2:0.5b", "gemma2:9b"]
 
@@ -47,12 +49,24 @@ export class AIAgent {
      * Calls the AI model with the current request.
      * @returns {Promise<string>} The response from the AI model.
      */
-    async call(){
-        if(this.#request == "") return
+    async call(iter : number = 0) : Promise<string>{
+        let currentIter = iter
+        if(this.#request == "") throw new Error("Request is missing.")
         const response = await this.#model.ask(this.#request)
-        console.log("\u001b[1;35m " + this.#name + ' :\n\n' + response.response)
+        this.#log(response.response)
         this.#lastOutput = response.response
-        return response.response
+        if(this.#regexValidator == undefined) return response.response
+        if(this.checkOutputValidity(response.response, this.#regexValidator)) return response.response
+        if(currentIter+1 < this.#maxIter) return this.call(currentIter + 1)
+        throw new Error(`Couldn't format the reponse the right way despite the ${this.#maxIter} iterations.`)
+    }
+
+    checkOutputValidity(output : string, regex : RegExp) : boolean{
+        return regex.test(output)
+    }
+
+    #log(text : string){
+        console.log("\n\n\u001b[1;35m" + this.#name + ' :\n\u001b[1;36m' + text)
     }
 
     /**
@@ -62,6 +76,11 @@ export class AIAgent {
      */
     setRequest(request : string) : AIAgent{
         this.#request = request
+        return this
+    }
+
+    setTemperature(temp : number){
+        this.model.setTemperature(temp)
         return this
     }
 
@@ -94,31 +113,36 @@ export class AIAgent {
         return this
     }
 
+    setRegexOutputValidator(regex : RegExp){
+        this.#regexValidator = regex
+        return this
+    }
+
     /**
      * Sets the function calling model.
      * @param {AIModel} model - The function calling model to set.
      */
-    setFunctionCallingModel(model : AIModel){
+    /*setFunctionCallingModel(model : AIModel){
         this.#fnCallingModel = model
-    }
+    }*/
 
     /**
      * Sets the expected input format.
      * @param {string} fewShots - The expected input format.
      * @returns {AIAgent} The current instance for chaining.
      */
-    setExpectedInputFormat(fewShots : string){
+    /*setExpectedInputFormat(fewShots : string){
         this.#expectInputFormat = fewShots
         return this
-    }
+    }*/
 
     /**
      * Gets the expected input format.
      * @returns {string} The expected input format.
      */
-    getExpectedInputFormat(){
+    /*getExpectedInputFormat(){
         return this.#expectInputFormat
-    }
+    }*/
 
     /*getLastOutput() : string{
         while(this.#processingRequest){}
