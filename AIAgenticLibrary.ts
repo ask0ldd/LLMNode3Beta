@@ -2,7 +2,7 @@ import { AIAgent } from "./AIAgent.js";
 
 export class AIAgenticLibrary{
 
-    static formatterAgent = new AIAgent("New Line Formatter Agent")
+    static formatterAgent = new AIAgent("New Line Formatter Agent").resetContext()
         .setSystemPrompt(
             `You are a expert linguist.\n
             When a text is sent to you, you should format it in the following way :\n
@@ -12,18 +12,28 @@ export class AIAgenticLibrary{
             - Follow closely the given process and output only the forthcoming text with the added new lines.\n
             - Don't do anything more than what has been asked, like adding annotations or delimiters.
             Here follows the text to format : \n\n`
+            /*`You are an expert linguist. Process any text that way :
+            => Each time you encounter a CAPITAL LETTER in the text, ask yourself if this letter is a marker for a new line. if it is, then ADD A NEW LINE to the original text.\n\n
+            => Do AS LITTLE MODIFICATION AS POSSIBLE to the text.
+            => Add NO COMMENTARY, NO ANNOTATIONS, NO DELIMITERS to your output.\n\n
+            Here follows the text to format : \n\n`*/
     )
 
-    static textExtractorAgent = new AIAgent("Text Extractor Agent")
+    static textExtractorAgent = new AIAgent("Text Extractor Agent").resetContext()
     .setSystemPrompt(
-        `You are a expert linguist and you should process any chunk of text that way :\n
+        /*`You are a expert linguist and you should process any chunk of text that way :\n
         - Extract all the prose out of it.\n
         - Output it with as little modifications as possible.\n
         - Add no annotations or delimiters to your output.\n\n
+        Here follows the text to format : \n\n`*/
+        `You are an expert linguist. Process any chunk of text as follow :\n
+        => Extract ALL the prose.\n
+        => Do AS LITTLE MODIFICATIONS AS POSSIBLE to the text.\n\n
+        WARNING!!! => YOUR REPLY NEEDS TO CONTAIN ONLY THE EXTRACTED TEXT. DON'T COMMENT. ADD NO ANNOTATIONS. ADD NO DELIMITERS.\n\n
         Here follows the text to format : \n\n`
     )
 
-    static codeExtracterAgent = new AIAgent("Code Extracter Agent")
+    static codeExtracterAgent = new AIAgent("Code Extracter Agent").resetContext()
         .setSystemPrompt(
             `You are an expert developper and as such :\n
             - It is easy for you to spot any code.\n
@@ -35,7 +45,7 @@ export class AIAgenticLibrary{
             Here follows the text to format : \n\n`
     )
 
-    static planAssessorAgent = new AIAgent("Plan Assessor Agent")
+    static planAssessorAgent = new AIAgent("Plan Assessor Agent").resetContext()
     .setSystemPrompt(
         `You are an expert in tasks planning, especially technological ones and as such your role is to :\n
         1- Extract the steps out of a given javascript array named as "the plan".\n
@@ -54,6 +64,14 @@ export class AIAgenticLibrary{
         \n\n
         Here follows the javascript array containing the estimated steps to reach the goal then the goal itself : \n\n`
     )
+
+    static searchQueryProducerAgent = new AIAgent("SearchQueryProducerAgent").setTemperature(0.3).resetContext()
+    .setSystemPrompt(`You are a SEO specialist and by extension, an expert at using web search engines like Google.
+        Use your expertise to transform any given question into an optimized search query containing keywords which will lead any search engine toward the optimal results needed to answer the question.\n\n
+        WARNING!!! => YOUR REPLY NEEDS TO BE FORMATTED AS A JSON AND FOLLOW THIS EXAMPLE :\n
+        {"searchQuery" : the_search_query_you_produced}\n\n
+        Here follows the question :\n\n
+        `)
 }
 
 /*
