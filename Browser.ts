@@ -15,6 +15,7 @@ export class Browser {
         const imgTagRegex = /<img[^>]*\/>/gi;
         const imgTagRegex2 = /<img[^>]*\/><\/img>/gi;
         const imgTagRegex3 = /<img[^>]*>/gi;
+        const imgTagRegex4 = /<a[^>]/gi;
         try {
             
             const response = await fetch(url)
@@ -25,13 +26,15 @@ export class Browser {
             webpage('nav').remove()
             webpage('header').remove()
             webpage('footer').remove()
-            webpage('a').remove()
+            // webpage('a').remove()
             webpage('img').remove()
             const cleanText = (webpage("body").text())
                 .replace(/[\n\t]+/g, '\n')
                 .replace(imgTagRegex, '')
                 .replace(imgTagRegex2, '')
                 .replace(imgTagRegex3, '')
+                .replace(imgTagRegex4, '')
+                .replace("</a>", "")
                 .replace("\'", "'")
                 .replace('\"', '"');
             return cleanText
