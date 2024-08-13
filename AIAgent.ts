@@ -3,14 +3,10 @@ import { AIModel } from "./AIModel.js"
 export class AIAgent {
 
     #name! : string
-    // #currentIter = 0
     #maxIter = 5
     #model! : AIModel
-    #fnCallingModel : AIModel | null = null
     #request = ""
-    #processingRequest = false
     #lastOutput = ""
-    #expectInputFormat = ""
     #regexValidator : RegExp | undefined
 
     models = ["llama3", "llama3.1:8b", "dolphin-llama3:8b-256k", "phi3:3.8-mini-128k-instruct-q4_K_M", "qwen2", "qwen2:1.5b", "qwen2:0.5b", "gemma2:9b"]
@@ -144,10 +140,33 @@ export class AIAgent {
         return this.#expectInputFormat
     }*/
 
-    /*getLastOutput() : string{
-        while(this.#processingRequest){}
+    getRequest() : string{
+        return this.#request
+    }
+
+    getModel() : AIModel{
+        return this.#model
+    }
+
+    getLog() : (text : string) => void {
+        return this.#log
+    }
+
+    getMaxIter() : number{
+        return this.#maxIter
+    }
+
+    getLastOutput() : string{
         return this.#lastOutput
-    }*/
+    }
+
+    getRegexValidator() : RegExp | undefined{
+        return this.#regexValidator
+    }
+
+    setLastOutput(lastOutput : string) : void{
+        this.#lastOutput = lastOutput
+    }
 
     //setAction
     //setOutputSchema
