@@ -1,6 +1,7 @@
 import { AIAgent } from "./AIAgent.js"
 import { AIAgenticLibrary } from "./AIAgenticLibrary.js"
 import { AIModel } from "./AIModel.js"
+import { useAChunkOfTextToReplyAQuestionPrompt } from "./AIOtherPrompts.js"
 import { Browser } from "./Browser.js"
 
 const model = new AIModel({})
@@ -40,12 +41,7 @@ ${htmlPageText[0]}
 
 model.setContext([])
     .setContextSize(8000)
-    .setSystemPrompt(
-        `You are an expert assistant. Your role is to use the information in a given chunk of text to answer a given question in the most concise way possible. I want a very direct answer to the question.
-WARNING!!! => YOUR ANSWER NEEDS TO BE FORMATTED AS A JSON AND FOLLOW THIS EXAMPLE :\n\n
-{"summary" : your_summary}\n\n
-        `
-    )
+    .setSystemPrompt(useAChunkOfTextToReplyAQuestionPrompt)
     .setTemperature(0.3)
 
 const summary = await model.ask(`
