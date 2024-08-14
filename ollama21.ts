@@ -1,6 +1,7 @@
 import { AIAgent } from "./AIAgent.js"
 import { AIAgenticLibrary } from "./AIAgenticLibrary.js"
 import { AIModel } from "./AIModel.js"
+import { searchQueryProducerPrompt, useAChunkOfTextToReplyAQuestionPrompt } from "./AIOtherPrompts.js"
 import { Browser } from "./Browser.js"
 
 const model = new AIModel({})
@@ -27,16 +28,7 @@ const resp = await model.ask(question1)*/
     Here follows the given question : \n\n`)
 .setTemperature(0.1)*/
 
-model.setContext([]).setContextSize(8000).setSystemPrompt(
-    `You are a SEO specialist and as such, you are an expert at using search engines. 
-    A question will be given to you. DO NOT REPLY to that question.
-    What you should do instead is use your expertise to produce a search query containing keywords which will lead the search engine toward the optimal results needed to answer the question.\n\n
-    You should format your output the following way :\n\n
-    {"searchQuery" : the_search_query_you_produced}\n\n
-    DO NOT ADD any comment, insight, information or marking.
-    Here follows the question :\n\n
-    `
-)
+model.setContext([]).setContextSize(8000).setSystemPrompt(searchQueryProducerPrompt)
 .setTemperature(0.3)
 
 const searchQuery = (await JSON.parse((await model.ask(question3)).response.trim()))?.searchQuery // deal with searchQuery missing
@@ -59,15 +51,7 @@ const cleanedupText = await AIAgenticLibrary.textExtractorAgent.resetContext().s
 ${htmlPageText[0]}
 `).call()
 
-model.setContext([]).setContextSize(8000).setSystemPrompt(
-`You are chief editor for a website producing short articles which answer the questions of its readers. 
-Your job is to : \n\n
-- Merge the chunks into one summary that should answer the given question.
-You should format your output the following way :\n\n
-{"summary" : the_summary_answering_the_question_you_produced}\n\n
-DO NOT ADD any comment, insight, information or marking.
-`
-)
+model.setContext([]).setContextSize(8000).setSystemPrompt(useAChunkOfTextToReplyAQuestionPrompt)
 .setTemperature(0.3)
 
 const summary = await model.ask(`

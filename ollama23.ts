@@ -1,39 +1,14 @@
 import { AIAgent } from "./AIAgent.js"
 import { AIAgenticLibrary } from "./AIAgenticLibrary.js"
 import { AIModel } from "./AIModel.js"
+import { questionsToSearchQueryPrompt, useAChunkOfTextToReplyAQuestionPrompt } from "./AIOtherPrompts.js"
 import { Browser } from "./Browser.js"
 
 const model = new AIModel({})
 
 const question1 = "Which is the most known track of the band Agonoize?"
 
-/*model.setContext([]).setSystemPrompt("You are an helpful assistant. Your answers should be precise and make the best usage of your knowledge and your reasoning abilities.")
-.setContextSize(8000)
-
-const resp = await model.ask(question1)*/
-
-/*model.setContext([]).setContextSize(8000).setSystemPrompt(`You are a SEO specialist and as such, you are an expert at using search engines. 
-    This means : You know exactly how to produce the best keywords needed for a search engines to give you the best search results possible. \n\n
-    Your role is : \n
-    - To ignore the given question and your impulse to reply to it.
-    - To take the given question and instead write out of it a sequence of keywords that gives you the best chance to find an answer.\n
-    - To reply ONLY with this produced sequence of keywords.\n
-    - NOT to reply to the given question, you only have to produce the requested sequence of keywords.\n
-    - NOT to add any commentary to your output.\n
-    - NOT to add any annotation to your output.\n
-    - NOT to add any marking to your output.\n
-    Here follows the given question : \n\n`)
-.setTemperature(0.1)*/
-
-model.setContext([]).setContextSize(8000).setSystemPrompt(
-    `You are a SEO specialist and as such, you are an expert at using search engines. 
-    A question will be given to you. DO NOT REPLY to that question.
-    What you should do instead is use your expertise to produce a search query containing keywords which will lead the search engine toward the optimal results needed to answer the question.\n\n
-    WARNING : YOUR REPLY SHOULD BE FORMATTED THIS WAY AND CONTAIN NOTHING MORE THAN A JAVASCRIPT OBJECT FOLLOWING THIS STRUCTURE :\n\n
-    {"searchQuery" : the_search_query_you_produced}\n\n
-    Here follows the question :\n\n
-    `
-)
+model.setContext([]).setContextSize(8000).setSystemPrompt(questionsToSearchQueryPrompt)
 .setTemperature(0.3)
 
 const searchQuery = (await JSON.parse((await model.ask(question1)).response.trim()))?.searchQuery // deal with searchQuery missing
@@ -56,13 +31,7 @@ const cleanedupText = await AIAgenticLibrary.textExtractorAgent.resetContext().s
 ${htmlPageText[0]}
 `).call()
 
-model.setContext([]).setContextSize(8000).setSystemPrompt(
-`You are chief editor for a website producing short summaries which answer the questions of its readers. 
-Your job is to merge the text chunks you are given into one short summary that should answer the given question.
-WARNING : YOUR REPLY SHOULD BE FORMATTED THIS WAY AND CONTAIN NOTHING MORE THAN A JAVASCRIPT OBJECT FOLLOWING THIS STRUCTURE :\n\n
-{"summary" : your_short_summary}\n\n
-`
-)
+model.setContext([]).setContextSize(8000).setSystemPrompt(useAChunkOfTextToReplyAQuestionPrompt)
 .setTemperature(0.3)
 
 const summary = await model.ask(`

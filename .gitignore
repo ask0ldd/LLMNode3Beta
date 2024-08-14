@@ -9,3 +9,4 @@ ressources.txt
 dist
 *.js
 AIPsyPrompts.ts
+AIOtherPrompts.ts
