@@ -1,5 +1,5 @@
 import { AIAgent } from "./AIAgent.js";
-import { conversationistPrompt, jobExtractorPrompt, SkillAssessementQuestionsSortingPrompt, skillRankingPrompt, skillsetGeneratorPrompt, skillToQuestionsPrompt } from "./AIPsyPrompts.js";
+import { answersSpectrumProducerPrompt, answerToAnswerComparisonPrompt, compareToPerfectAnswerPrompt, conversationistPrompt, jobExtractorPrompt, questionRatingViaScalePrompt, skillAssessementQuestionsSortingPrompt, skillRankingPrompt, skillsetGeneratorPrompt, skillToQuestionsPrompt } from "./AIPsyPrompts.js";
 
 class AISkillsetGeneratorAgent extends AIAgent{
     #job : string | undefined = undefined
@@ -40,5 +40,17 @@ export class AIPsyTeam{
     .setSystemPrompt(skillRankingPrompt)*/
 
     static skillAssessmentQuestionsRankingAgent = new AIAgent("Skill Assessment Questions Ranking Agent").resetContext()
-    .setSystemPrompt(SkillAssessementQuestionsSortingPrompt)
+    .setSystemPrompt(skillAssessementQuestionsSortingPrompt)
+
+    static skillAssessmentQuestion_TenAnswersSpectrumProducerAgent = new AIAgent("Itw Question Answers Spectrum Producer Agent").resetContext().setTemperature(0.6)
+    .setSystemPrompt(answersSpectrumProducerPrompt)
+
+    static candidateAnswerRankingAgent = new AIAgent("Candidate Answer Ranking Agent").resetContext().setTemperature(0.3)
+    .setSystemPrompt(questionRatingViaScalePrompt)
+
+    static oneOnOneAnswersComparisonAgent = new AIAgent("Answer to Answer Comparison Agent").resetContext().setTemperature(0.3)
+    .setSystemPrompt(answerToAnswerComparisonPrompt)
+
+    static compareToPerfectAnswerAgent = new AIAgent("Compare to Perfect Answer Agent").resetContext().setTemperature(0.3)
+    .setSystemPrompt(compareToPerfectAnswerPrompt)
 }
