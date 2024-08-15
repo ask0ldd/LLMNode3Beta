@@ -52,22 +52,51 @@ export class AIAgent {
         const response = await this.#model.ask(this.#request)
         this.#log(response.response)
         this.#lastOutput = response.response
-        if(this.#regexValidator == undefined) return response.response
-        // !!! should test json parsing
-        if(this.checkOutputValidity(response.response, this.#regexValidator)) return response.response
+        if(this.#regexValidator == undefined && !this.#outputParseTesting) return response.response
+        // if(this.#outputParseTesting && !this.parsingTest(response.response)) 
+        if(this.checkOutputValidity(response.response, this.#regexValidator as RegExp)) return response.response
         if(currentIter+1 < this.#maxIter) return this.call(currentIter + 1)
         throw new Error(`Couldn't format the reponse the right way despite the ${this.#maxIter} iterations.`)
     }
 
+    /**
+     * Checks the validity of the output against a regular expression.
+     * @param {string} output - The output string to validate.
+     * @param {RegExp} regex - The regular expression to test against.
+     * @returns {boolean} True if the output is valid, false otherwise.
+     */
     checkOutputValidity(output : string, regex : RegExp) : boolean{
         return regex.test(output)
     }
 
-    activateOutputParseTesting(){
+    /**
+     * Activates output parsing testing mode.
+     * @returns {AIAgent} The current instance for chaining.
+     */
+    activateOutputParseTesting(): AIAgent{
         this.#outputParseTesting = true
         return this
     }
 
+    /**
+     * Tests if a JSON string can be parsed.
+     * @param {string} jsonString - The JSON string to test.
+     * @returns {boolean} True if parsing succeeded, false otherwise.
+     */
+    parsingTest(jsonString : string): boolean{
+        try {
+            JSON.parse(jsonString);
+            return true;  // Parsing succeeded
+        } catch (error) {
+            return false; // Parsing failed
+        }
+    }
+
+    /**
+     * Logs a message to the console.
+     * @param {string} text - The message to log.
+     * @private
+     */
     #log(text : string){
         console.log("\n\n\u001b[1;35m" + this.#name + ' :\n\u001b[1;36m' + text)
     }
@@ -82,7 +111,12 @@ export class AIAgent {
         return this
     }
 
-    setTemperature(temp : number){
+    /**
+     * Sets the temperature for the AI model.
+     * @param {number} temp - The temperature to set.
+     * @returns {AIAgent} The current instance for chaining.
+     */
+    setTemperature(temp : number): AIAgent{
         this.model.setTemperature(temp)
         return this
     }
@@ -116,36 +150,15 @@ export class AIAgent {
         return this
     }
 
+    /**
+     * Sets a regular expression for output validation.
+     * @param {RegExp} regex - The regular expression to set.
+     * @returns {AIAgent} The current instance for chaining.
+     */
     setRegexOutputValidator(regex : RegExp){
         this.#regexValidator = regex
         return this
     }
-
-    /**
-     * Sets the function calling model.
-     * @param {AIModel} model - The function calling model to set.
-     */
-    /*setFunctionCallingModel(model : AIModel){
-        this.#fnCallingModel = model
-    }*/
-
-    /**
-     * Sets the expected input format.
-     * @param {string} fewShots - The expected input format.
-     * @returns {AIAgent} The current instance for chaining.
-     */
-    /*setExpectedInputFormat(fewShots : string){
-        this.#expectInputFormat = fewShots
-        return this
-    }*/
-
-    /**
-     * Gets the expected input format.
-     * @returns {string} The expected input format.
-     */
-    /*getExpectedInputFormat(){
-        return this.#expectInputFormat
-    }*/
 
     getRequest() : string{
         return this.#request
