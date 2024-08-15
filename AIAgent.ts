@@ -8,6 +8,7 @@ export class AIAgent {
     #request = ""
     #lastOutput = ""
     #regexValidator : RegExp | undefined
+    #outputParseTesting = false
 
     models = ["llama3", "llama3.1:8b", "dolphin-llama3:8b-256k", "phi3:3.8-mini-128k-instruct-q4_K_M", "qwen2", "qwen2:1.5b", "qwen2:0.5b", "gemma2:9b"]
 
@@ -52,6 +53,7 @@ export class AIAgent {
         this.#log(response.response)
         this.#lastOutput = response.response
         if(this.#regexValidator == undefined) return response.response
+        // !!! should test json parsing
         if(this.checkOutputValidity(response.response, this.#regexValidator)) return response.response
         if(currentIter+1 < this.#maxIter) return this.call(currentIter + 1)
         throw new Error(`Couldn't format the reponse the right way despite the ${this.#maxIter} iterations.`)
@@ -59,6 +61,11 @@ export class AIAgent {
 
     checkOutputValidity(output : string, regex : RegExp) : boolean{
         return regex.test(output)
+    }
+
+    activateOutputParseTesting(){
+        this.#outputParseTesting = true
+        return this
     }
 
     #log(text : string){
