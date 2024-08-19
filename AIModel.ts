@@ -43,7 +43,7 @@ export class AIModel{
      * @returns {Promise<ICompletionResponse>} The response from the AI model.
      * @description Sends a request to the AI model with the given prompt and returns the response.
      */
-    async ask(prompt : string) : Promise<ICompletionResponse> {
+    async ask(prompt : string, streaming = false) : Promise<ICompletionResponse> {
         const response = await fetch("http://127.0.0.1:11434/api/generate", {
             method: "POST",
             headers: {
@@ -51,7 +51,24 @@ export class AIModel{
             },
             body: this.#buildRequest(prompt),
         });
-        return response.json()
+
+        return await response.json()
+    }
+
+     async askForAStreamedResponse(prompt : string) : Promise<ReadableStreamDefaultReader<Uint8Array>>{
+        const response = await fetch("http://127.0.0.1:11434/api/generate", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: this.#buildRequest(prompt),
+        });
+
+        const reader = response.body?.getReader()
+        if (!reader) {
+            throw new Error("Failed to read response body.")
+        }
+        return reader
     }
 
     /**
@@ -168,6 +185,14 @@ export class AIModel{
         if(this.#knowledgeSource == "") return this.ask(question)
         
     }*/
+
+    enableStreaming(){
+        this.#stream = true
+    }
+
+    disableStreaming(){
+        this.#stream = false
+    }
 }
 
 export interface IAIModelParams{
