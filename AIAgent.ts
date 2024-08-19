@@ -1,4 +1,4 @@
-import { AIModel } from "./AIModel.js"
+import { AIModel, ICompletionResponse } from "./AIModel.js"
 
 export class AIAgent {
 
@@ -6,84 +6,80 @@ export class AIAgent {
     #maxIter = 5
     #model! : AIModel
     #request = ""
-    #lastOutput = ""
+    #lastOutput : unknown = ""
     #regexValidator : RegExp | undefined
-    #outputParseTesting = false
+    #verifyParsability = false
+    #stream = false
+    #responseParsingFn : ((llmResponse : string) => object) | undefined = undefined
 
     models = ["llama3", "llama3.1:8b", "dolphin-llama3:8b-256k", "phi3:3.8-mini-128k-instruct-q4_K_M", "qwen2", "qwen2:1.5b", "qwen2:0.5b", "gemma2:9b"]
 
     defaultModel = "llama3.1:8b"
 
-    /**
-     * Constructs a new AIAgent.
-     * @param {string} name - The name of the agent.
-     * @param {string} [model="llama3.1:8b"] - The model to be used by the agent.
-     */
     constructor(name : string, model : string = "llama3.1:8b"){
         this.#name = name
         this.#model = new AIModel({modelName : model}).setTemperature(0.1).setContextSize(8000).setContext([]).setSystemPrompt("You are an helpful assistant.")
     }
 
-    /**
-     * Sets the AI model for the agent.
-     * @param {AIModel} model - The AI model to set.
-     * @returns {AIAgent} The current instance for chaining.
-     */
     setModel(model : AIModel) : AIAgent{
         this.#model = model
         return this
     }
 
-    /**
-     * Gets the current AI model.
-     * @returns {AIModel} The current AI model.
-     */
     get model() : AIModel{
         return this.#model
     }
 
-    /**
-     * Calls the AI model with the current request.
-     * @returns {Promise<string>} The response from the AI model.
-     */
-    async call(iter : number = 0) : Promise<string>{
-        let currentIter = iter
+    async rawCall(iter : number = 0) : Promise<string>{
+        let currentIter: number = iter
+        console.log('\n\u001b[1;32m... In ' + (currentIter+1) + ' attempt.\n\n')
         if(this.#request == "") throw new Error("Request is missing.")
-        const response = await this.#model.ask(this.#request)
-        this.#log(response.response)
+        const response = await this.#model.ask(this.#request, this.#stream)
+        // this.#log(response.response)
         this.#lastOutput = response.response
-        if(this.#regexValidator == undefined && !this.#outputParseTesting) return response.response
-        // if(this.#outputParseTesting && !this.parsingTest(response.response)) 
-        if(this.checkOutputValidity(response.response, this.#regexValidator as RegExp)) return response.response
-        if(currentIter+1 < this.#maxIter) return this.call(currentIter + 1)
-        throw new Error(`Couldn't format the reponse the right way despite the ${this.#maxIter} iterations.`)
+        // test response ability to be parsing
+        if(this.#verifyParsability && !this.parsingCheck(response.response) && currentIter+1 < this.#maxIter) return this.rawCall(currentIter + 1)
+        // test response formatting
+        if(this.#regexValidator && !this.checkOutputValidity(response.response, this.#regexValidator as RegExp) && currentIter+1 < this.#maxIter) return this.rawCall(currentIter + 1)
+        // if not formatted properly after all the iterations => throws
+        if(currentIter+1 >= this.#maxIter) throw new Error(`Couldn't format the reponse the right way despite the ${this.#maxIter} iterations.`)
+        return response.response
     }
 
-    /**
-     * Checks the validity of the output against a regular expression.
-     * @param {string} output - The output string to validate.
-     * @param {RegExp} regex - The regular expression to test against.
-     * @returns {boolean} True if the output is valid, false otherwise.
-     */
+    call = this.rawCall
+
+    async parsedCall(iter : number = 0) : Promise<string | object>{
+        if(this.#responseParsingFn == undefined) throw new Error("Parsing function is undefined")
+        let currentIter: number = iter
+        console.log('\n\u001b[1;32m... In ' + (currentIter+1) + ' attempt.\n\n')
+        if(this.#request == "") throw new Error("Request is missing.")
+        const response = await this.#model.ask(this.#request, this.#stream)
+        // this.#log(response.response)
+        this.#lastOutput = this.#responseParsingFn(response.response)
+        // test response ability to be parsing
+        if(this.#verifyParsability && !this.parsingCheck(response.response) && currentIter+1 < this.#maxIter) return this.parsedCall(currentIter + 1)
+        // test response formatting
+        if(this.#regexValidator && !this.checkOutputValidity(response.response, this.#regexValidator as RegExp) && currentIter+1 < this.#maxIter) return this.parsedCall(currentIter + 1)
+        // if not formatted properly after all the iterations => throws
+        if(currentIter+1 >= this.#maxIter) throw new Error(`Couldn't format the reponse the right way despite the ${this.#maxIter} iterations.`)
+        return this.#responseParsingFn(response.response)
+    }
+
+
+    async callStream() : Promise<ReadableStreamDefaultReader<Uint8Array>>{
+        return await this.#model.askForAStreamedResponse(this.#request)
+    }
+
     checkOutputValidity(output : string, regex : RegExp) : boolean{
         return regex.test(output)
     }
 
-    /**
-     * Activates output parsing testing mode.
-     * @returns {AIAgent} The current instance for chaining.
-     */
-    activateOutputParseTesting(): AIAgent{
-        this.#outputParseTesting = true
+    enableParsabilityCheck(): AIAgent{
+        this.#verifyParsability = true
         return this
     }
 
-    /**
-     * Tests if a JSON string can be parsed.
-     * @param {string} jsonString - The JSON string to test.
-     * @returns {boolean} True if parsing succeeded, false otherwise.
-     */
-    parsingTest(jsonString : string): boolean{
+    parsingCheck(jsonString : string): boolean{
         try {
             JSON.parse(jsonString);
             return true;  // Parsing succeeded
@@ -92,70 +88,36 @@ export class AIAgent {
         }
     }
 
-    /**
-     * Logs a message to the console.
-     * @param {string} text - The message to log.
-     * @private
-     */
     #log(text : string){
         console.log("\n\n\u001b[1;35m" + this.#name + ' :\n\u001b[1;36m' + text)
     }
 
-    /**
-     * Sets the request for the AI model.
-     * @param {string} request - The request to be set.
-     * @returns {AIAgent} The current instance for chaining.
-     */
     setRequest(request : string) : AIAgent{
         this.#request = request
         return this
     }
 
-    /**
-     * Sets the temperature for the AI model.
-     * @param {number} temp - The temperature to set.
-     * @returns {AIAgent} The current instance for chaining.
-     */
     setTemperature(temp : number): AIAgent{
         this.model.setTemperature(temp)
         return this
     }
 
-    /**
-     * Sets the system prompt for the AI model.
-     * @param {string} prompt - The system prompt to be set.
-     * @returns {AIAgent} The current instance for chaining.
-     */
     setSystemPrompt(prompt : string) : AIAgent{
         this.#model.setSystemPrompt(prompt)
         return this
     }
 
-    /**
-     * Resets the context of the AI model.
-     * @returns {AIAgent} The current instance for chaining.
-     */
     resetContext(): AIAgent{
         this.#model.setContext([])
         return this
     }
 
-    /**
-     * Sets the maximum number of iterations.
-     * @param {number} iter - The maximum number of iterations.
-     * @returns {AIAgent} The current instance for chaining.
-     */
     setMaxIter(iter : number) : AIAgent{
         this.#maxIter = iter
         return this
     }
 
-    /**
-     * Sets a regular expression for output validation.
-     * @param {RegExp} regex - The regular expression to set.
-     * @returns {AIAgent} The current instance for chaining.
-     */
-    setRegexOutputValidator(regex : RegExp){
+    setRegexOutputValidator(regex : RegExp): AIAgent{
         this.#regexValidator = regex
         return this
     }
@@ -176,7 +138,7 @@ export class AIAgent {
         return this.#maxIter
     }
 
-    getLastOutput() : string{
+    getLastOutput() : unknown{
         return this.#lastOutput
     }
 
@@ -186,6 +148,23 @@ export class AIAgent {
 
     setLastOutput(lastOutput : string) : void{
         this.#lastOutput = lastOutput
+    }
+
+    enableStreaming(){
+        this.#model.enableStreaming()
+        this.#stream = true
+        return this
+    }
+
+    disableStreaming(){
+        this.#model.disableStreaming()
+        this.#stream = false
+        return this
+    }
+
+    setReplyParsingFn(parsingFn : (llmResponse : string) => object){
+        this.#responseParsingFn = parsingFn
+        return this
     }
 
     //setAction
