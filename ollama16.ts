@@ -14,7 +14,7 @@ agent.setRequest(htmlPageText)
 let result = await agent.call()*/
 
 AIAgenticLibrary.formatterAgent.setRequest(htmlPageText)
-let result = await AIAgenticLibrary.formatterAgent.call()
+let result = await AIAgenticLibrary.formatterAgent.rawCall()
 
 //const agent2 = new AIAgent("Code Extracter Agent").setSystemPrompt("You are an expert developper and such it is easy for you to spot any code. You can recognize any programming langage. When a text is sent to you, you should extract the code out of it and output it as it is, with no annotations or delimiters added. Here comes the text to format : \n\n")
 
