@@ -41,6 +41,8 @@ console.log('\n\n\u001b[1;34mskillset : ' + requiredSkillset)
 const skillset = JSON.parse(requiredSkillset)
 const skill1 = skillset[0].description
 
+// !!! should take into account if the questions are for an experience professional or a beginner
+// cause with a beginner you can't ask questions about past experiences in the field
 const questionsAssessingSkill = await AIPsyTeam.skillToQuestionsTranslatorAgent
     .setRequest(`Here is the specified position :\n
     ${JSON.parse(jobDisambiguation).jobTitle}\n\n
