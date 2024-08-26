@@ -1,5 +1,5 @@
 import * as fs from "fs"
-import { ChromaClient, Collection, Embedding } from "chromadb"
+import { ChromaClient, Collection, Embedding, QueryResponse } from "chromadb"
 import { AIModel } from "./AIModel"
 import { AIEmbeddingModel } from "./AIEmbeddingModel"
 
@@ -13,7 +13,7 @@ export class AIRAGStore{
     }
 
     async newCollection(collectionName : string) {
-        if(this.#collections.find(collection => collection.name == collectionName)) throw new Error(`Collection ${collectionName} already exists`)
+        if(this.#collections.find(collection => collection.name == collectionName)) this.deleteCollection(collectionName)
         const collection = await this.#chromaClient.createCollection({name : collectionName, metadata: { "hnsw:space": "cosine" },})
         this.#collections.push(collection)
     }
@@ -22,6 +22,12 @@ export class AIRAGStore{
         const collection = this.#collections.find(collection => collection.name == collectionName)
         if(!collection) throw new Error(`Collection ${collectionName} does not exist`)
         await collection.add({ids : RAGTarget.ids, embeddings: RAGTarget.embeddings, documents: RAGTarget.documentChunks})
+    }
+
+    getCollection(collectionName : string): Collection {
+        const collection = this.#collections.find(collection => collection.name == collectionName)
+        if(!collection) throw new Error(`Collection ${collectionName} does not exist`)
+        return collection
     }
 
     splitTextBlockIntoChunks(text : string, seqLength : number) : string[] {
@@ -49,7 +55,7 @@ export class AIRAGStore{
         }
     }
 
-    async storeUtf8TextFileInACollection(collectionName : string, textFilePath : string, seqLength = 200) : Promise<Embedding[]>{
+    async storeUtf8TextFileInACollection(collectionName : string, textFilePath : string, seqLength = 200){
         const chunks = this.splitUtf8TextFileIntoChunks(textFilePath, seqLength)
         let embeddings = []
         let ids = []
@@ -62,5 +68,16 @@ export class AIRAGStore{
         }
         const RAGTarget = {ids, embeddings, documentChunks: chunks}
         this.addToCollection(collectionName, RAGTarget)
+    }
+
+    async deleteCollection(collectionName : string){
+        await this.#chromaClient.deleteCollection({name : collectionName})
+    }
+
+    async retrieveFromCollection(collectionName : string, query : string, nResults = 3): Promise<QueryResponse>{
+        const queryEmbedding = await AIEmbeddingModel.process(query)
+        const collection = this.getCollection(collectionName)
+        const ragResults = await collection.query({queryEmbeddings : queryEmbedding.embedding, nResults})
+        return ragResults
     }
 }
